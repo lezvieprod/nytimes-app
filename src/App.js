@@ -1,25 +1,40 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { useEffect } from 'react';
+import AppBar from '@material-ui/core/AppBar';
+import CssBaseline from '@material-ui/core/CssBaseline';
+import Toolbar from '@material-ui/core/Toolbar';
+import Typography from '@material-ui/core/Typography';
+import TopNews from './components/TopNews';
+import { getTopNewsThunk } from './redux/rootReducer';
+import { connect } from 'react-redux';
 
-function App() {
+
+function App(props) {
+
+  useEffect(() => {
+    props.getTopNewsThunk()
+    // getTopViewedArcticles()
+  }, []) 
+
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+    <>
+      <CssBaseline />
+      <AppBar position="relative">
+        <Toolbar>
+          <Typography variant="h6" color="inherit" noWrap>
+            Album layout
+          </Typography>
+        </Toolbar>
+      </AppBar>
+      <main>
+        <TopNews />
+      </main>
+    </>
+  )
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  test: state.rootReducer.test
+})
+
+
+export default connect(mapStateToProps, { getTopNewsThunk })(App)
