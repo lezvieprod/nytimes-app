@@ -6,14 +6,23 @@ import Typography from '@material-ui/core/Typography';
 import TopNews from './components/TopNews';
 import { getTopNewsThunk } from './redux/rootReducer';
 import { connect } from 'react-redux';
+import CircularProgress from '@material-ui/core/CircularProgress'
+import { makeStyles } from '@material-ui/core/styles';
+import Paper from '@material-ui/core/Paper';
+import Tabs from '@material-ui/core/Tabs';
+import Tab from '@material-ui/core/Tab';
 
 
-function App(props) {
 
-  useEffect(() => {
-    props.getTopNewsThunk()
-    // getTopViewedArcticles()
-  }, []) 
+export default function App(props) {
+
+  
+
+  const [value, setValue] = React.useState(0);
+
+  const handleChange = (event, newValue) => {
+    setValue(newValue);
+  };
 
   return (
     <>
@@ -25,16 +34,22 @@ function App(props) {
           </Typography>
         </Toolbar>
       </AppBar>
+      <Paper>
+        <Tabs
+          value={value}
+          onChange={handleChange}
+          indicatorColor="primary"
+          textColor="primary"
+          centered
+        >
+          <Tab label="Item One" />
+          <Tab label="Item Two" />
+          <Tab label="Item Three" />
+        </Tabs>
+      </Paper>
       <main>
         <TopNews />
       </main>
     </>
   )
 }
-
-const mapStateToProps = (state) => ({
-  test: state.rootReducer.test
-})
-
-
-export default connect(mapStateToProps, { getTopNewsThunk })(App)

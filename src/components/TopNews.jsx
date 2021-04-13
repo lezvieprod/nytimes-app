@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import Button from '@material-ui/core/Button';
 import Card from '@material-ui/core/Card';
@@ -11,6 +11,10 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import { makeStyles } from '@material-ui/core/styles';
 import Container from '@material-ui/core/Container';
+import { connect } from 'react-redux';
+import { getTopNewsThunk } from '../redux/rootReducer';
+import CircularProgress from '@material-ui/core/CircularProgress'
+import noImage from '.././assets/images/noimage.jpg'
 
 
 const useStyles = makeStyles((theme) => ({
@@ -47,40 +51,83 @@ const useStyles = makeStyles((theme) => ({
 const cards = [1, 2, 3, 4, 5, 6, 7, 8, 9];
 
 
-export default function TopNews() {
+function TopNews(props) {
   const classes = useStyles();
+
+  useEffect(() => {
+    props.getTopNewsThunk()
+  }, [])
+
+  // console.log(props.topNews.results);
+
+
 
   return (
     <>
-
       <Container className={classes.cardGrid} maxWidth="md">
         <Grid container spacing={4}>
-          {cards.map((card) => (
-            <Grid item key={card} xs={12} sm={6} md={4}>
-              <Card className={classes.card}>
-                <CardMedia
-                  className={classes.cardMedia}
-                  image="https://source.unsplash.com/random"
-                  title="Image title"
-                />
-                <CardContent className={classes.cardContent}>
-                  <Typography gutterBottom variant="h5" component="h2">
-                    Heading
-                  </Typography>
-                  <Typography>
-                    This is a media card. You can use this section to describe the content.
-                  </Typography>
-                </CardContent>
-                <CardActions>
-                  <Button size="small" color="primary">
-                    Подробнее
-                  </Button>
-                </CardActions>
-              </Card>
-            </Grid>
-          ))}
+          {
+            props.isFetchingTopNews
+              ? <div style={{ width: '100%', display: 'flex', justifyContent: 'center', margin: '5rem 0' }}><CircularProgress /></div>
+              :
+              Array.isArray(props.topNews.results) && props.topNews.results.length
+              && props.topNews.results.map(article => {
+                return (
+                  <Grid item key={article.id} xs={12} sm={6} md={4} data-title={article.id}>
+                    <Card className={classes.card}>
+                      {
+                        Array.isArray(article.media) && article.media.length > 0
+                          ? // image
+                          article.media.map((image, idx) => {
+                            return (
+                              <CardMedia
+                                key={idx}
+                                className={classes.cardMedia}
+                                image={
+                                  image['media-metadata'][image['media-metadata'].length - 1].url
+                                }
+                                title={image.caption}
+                              />
+                            )
+                          })
+                          : // no image
+                          <CardMedia
+                            className={classes.cardMedia}
+                            image={noImage}
+                            title='No image'
+                          />
+                      }
+
+                      <CardContent className={classes.cardContent}>
+                        <Typography gutterBottom variant="h5" component="h2">
+                          {article.title}
+                        </Typography>
+                        <Typography>
+                          {article.abstract}
+                        </Typography>
+                      </CardContent>
+                      <CardActions>
+                        <Button size="small" color="primary">
+                          Подробнее
+                        </Button>
+                      </CardActions>
+                    </Card>
+                  </Grid>
+                )
+              })
+
+          }
+
         </Grid>
       </Container>
     </>
   )
 }
+
+const mapStateToProps = (state) => ({
+  topNews: state.rootReducer.topNews,
+  isFetchingTopNews: state.rootReducer.isFetchingTopNews
+})
+
+
+export default connect(mapStateToProps, { getTopNewsThunk })(TopNews)

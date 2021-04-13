@@ -4,6 +4,7 @@ import { getTopViewedArcticles } from "../API/api";
 
 const initialState = {
   topNews: [],
+  isFetchingTopNews: false,
   // isRequestStatus: false
 }
 
@@ -21,22 +22,25 @@ const rootReducer = createSlice({
   reducers: {
     getTopNews(state, action) {
       state.topNews = action.payload
+    },
+    toggleIsFetchingTopNews(state, action) {
+      state.isFetchingTopNews = action.payload
     }
   }
 })
 
 export default rootReducer.reducer;
-export const { getTopNews } = rootReducer.actions
+export const { getTopNews, toggleIsFetchingTopNews } = rootReducer.actions
 
 
 export const getTopNewsThunk = () => async dispatch => {
-  let response = await getTopViewedArcticles();
+  dispatch(toggleIsFetchingTopNews(true))
   try {
-    console.log(response.data);
+    let response = await getTopViewedArcticles();
     dispatch(getTopNews(response.data))
+    dispatch(toggleIsFetchingTopNews(false))
   }
-  catch {
-    console.log('CRITICAL ERROR');
+  catch(err) {
+    console.error('LOG', err);
   }
-
 }
