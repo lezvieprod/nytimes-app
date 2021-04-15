@@ -1,11 +1,13 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {getTopSharedArticles, getTopViewedArcticles} from "../API/api";
+import {logDOM} from "@testing-library/react";
 
 const initialState = {
   topViewedArticles: [],
-  isFetching: false,
   topSharedArticles: [],
-  // isRequestStatus: false
+  isFetching: false,
+  isRequestFailed: false,
+  requestFailedData: [],
 }
 
 export const getTopViewedArticlesThunk = createAsyncThunk(
@@ -19,25 +21,18 @@ export const getTopViewedArticlesThunk = createAsyncThunk(
 export const getTopSharedArticlesThunk = createAsyncThunk(
   'articles/getTopSharedArticles',
   async () => {
-    const response = await getTopSharedArticles()
-    return response.data;
+    try {
+      const response = await getTopSharedArticles()
+      return response.data;
+    } catch(err) {
+      throw err
+    }
   }
 )
 
 const rootReducer = createSlice({
   name: 'rootReducer',
   initialState,
-  reducers: {
-    setTopNews(state, action) {
-      state.topViewedArticles = action.payload
-    },
-    setTopSharedArticles(state, action) {
-      state.topSharedArticles = action.payload
-    },
-    toggleIsFetchingTopNews(state, action) {
-      state.isFetching = action.payload
-    }
-  },
   extraReducers: {
     // Top viewed articles reducers
     [getTopViewedArticlesThunk.fulfilled]: (state, action) => {
@@ -53,7 +48,9 @@ const rootReducer = createSlice({
     },
     [getTopViewedArticlesThunk.rejected]: (state, action) => {
       if (state.isFetching) {
-        state.isFetching = true
+        state.isFetching = false;
+        state.isRequestFailed = true;
+        state.requestFailedData = action.error;
       }
     },
 
@@ -71,7 +68,9 @@ const rootReducer = createSlice({
     },
     [getTopSharedArticlesThunk.rejected]: (state, action) => {
       if (state.isFetching) {
-        state.isFetching = true
+        state.isFetching = false;
+        state.isRequestFailed = true;
+        state.requestFailedData = action.error;
       }
     },
   }
