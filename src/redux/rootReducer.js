@@ -1,6 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import {getTopSharedArticles, getTopViewedArcticles} from "../API/api";
-import {logDOM} from "@testing-library/react";
 
 const initialState = {
   topViewedArticles: [],
@@ -13,8 +12,12 @@ const initialState = {
 export const getTopViewedArticlesThunk = createAsyncThunk(
   'articles/getTopViewedArticles',
   async () => {
-    const response = await getTopViewedArcticles();
-    return response.data;
+    try {
+      const response = await getTopViewedArcticles();
+      return response.data;
+    } catch(err) {
+      throw err
+    }
   }
 )
 

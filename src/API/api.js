@@ -4,6 +4,7 @@ const instance = axios.create({
   baseURL: 'https://api.nytimes.com/svc/mostpopular/v2/',
 })
 
+// public app api
 const api = 'Tvm22n5kU6IGckaqCMhDBJXRuj2nLIIt'
 
 export const getTopViewedArcticles = () => {

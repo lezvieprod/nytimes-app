@@ -9,9 +9,7 @@ import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
 import {useDispatch, useSelector} from 'react-redux';
 import {getTopViewedArticlesThunk} from '../redux/rootReducer';
-import CircularProgress from '@material-ui/core/CircularProgress'
 import noImage from '.././assets/images/noimage.jpg'
-import {Link} from "react-router-dom";
 import {Preloader} from "./common/Preloader";
 import {FetchError} from "./common/Error";
 
@@ -46,17 +44,27 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: theme.palette.background.paper,
     padding: theme.spacing(6),
   },
+  cardTitle: {
+    lineHeight: '1.4'
+  },
+  cardDescription: {
+    maxHeight: ' 100px',
+    overflow: 'hidden',
+    textOverflow: 'ellipsis',
+    whiteSpace: 'normal',
+    ['-webkit-box-orient']: 'vertical',
+    display: '-webkit-box',
+    lineClamp: 4,
+  }
 }));
 
-//test
 
-export function TopNews(props) {
+export function MostViewedArticles() {
   const classes = useStyles();
   const dispatch = useDispatch();
-  const {topViewedArticles, isFetching, isRequestFailed, requestFailedData} = useSelector(state => ({
+  const {topViewedArticles, isFetching, requestFailedData} = useSelector(state => ({
     topViewedArticles: state.rootReducer.topViewedArticles,
     isFetching: state.rootReducer.isFetching,
-    isRequestFailed: state.rootReducer.isRequestFailed,
     requestFailedData: state.rootReducer.requestFailedData
   }));
 
@@ -66,29 +74,29 @@ export function TopNews(props) {
 
 
   if (isFetching) {
-    return <Preloader />
+    return <Preloader/>
   } else if (Array.isArray(topViewedArticles.results) && topViewedArticles.results.length) {
     return (
       topViewedArticles.results.map(article => {
         return (
-          <Grid item key={article.id} xs={12} sm={6} md={4} data-title={article.id}>
+          <Grid item key={article.id} xs={12} sm={6} md={4} data-id={article.id}>
             <Card className={classes.card}>
               {
                 Array.isArray(article.media) && article.media.length > 0
-                  ? // image
+                  ? // render if image exist
                   article.media.map((image, idx) => {
                     return (
                       <CardMedia
                         key={idx}
                         className={classes.cardMedia}
                         image={
-                          image['media-metadata'][image['media-metadata'].length - 1].url // last image in arr
+                          image['media-metadata'][image['media-metadata'].length - 1].url // last image in array
                         }
                         title={image.caption}
                       />
                     )
                   })
-                  : // no image
+                  : // render if image not exist
                   <CardMedia
                     className={classes.cardMedia}
                     image={noImage}
@@ -97,15 +105,15 @@ export function TopNews(props) {
                   />
               }
               <CardContent className={classes.cardContent}>
-                <Typography gutterBottom variant="h5" component="h2">
+                <Typography className={classes.cardTitle} gutterBottom variant="h6" component="h2">
                   {article.title}
                 </Typography>
-                <Typography>
+                <Typography className={classes.cardDescription}>
                   {article.abstract}
                 </Typography>
               </CardContent>
               <CardActions>
-                <Button size="small" color="primary">
+                <Button size="small" color="primary" href={article.url} component={'a'} target="_blank">
                   Подробнее
                 </Button>
               </CardActions>
@@ -114,11 +122,7 @@ export function TopNews(props) {
         )
       })
     )
-  }
+  } // if the request is received and the response is an error
   return <FetchError name={requestFailedData.name} message={requestFailedData.message}/>
-
-
-
 }
 
-export default React.memo(TopNews);
