@@ -1,32 +1,26 @@
-import React, { useEffect } from 'react';
+import React from 'react';
 import AppBar from '@material-ui/core/AppBar';
 import CssBaseline from '@material-ui/core/CssBaseline';
 import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 import TopNews from './components/TopNews';
-import { getTopNewsThunk } from './redux/rootReducer';
-import { connect } from 'react-redux';
-import CircularProgress from '@material-ui/core/CircularProgress'
-import { makeStyles } from '@material-ui/core/styles';
-import Paper from '@material-ui/core/Paper';
-import Tabs from '@material-ui/core/Tabs';
-import Tab from '@material-ui/core/Tab';
+import {BrowserRouter, Link, Route, Switch} from 'react-router-dom';
+import Container from "@material-ui/core/Container";
+import {makeStyles} from "@material-ui/core/styles";
+import MostSharedArticles from "./components/MostSharedArticles";
 
-
+const useStyles = makeStyles((theme) => ({
+  mainContainer: {
+    paddingTop: '2%', // 16:9
+  },
+}));
 
 export default function App(props) {
-
-  
-
-  const [value, setValue] = React.useState(0);
-
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
+  const classes = useStyles();
 
   return (
-    <>
-      <CssBaseline />
+    <BrowserRouter>
+      <CssBaseline/>
       <AppBar position="relative">
         <Toolbar>
           <Typography variant="h6" color="inherit" noWrap>
@@ -34,22 +28,17 @@ export default function App(props) {
           </Typography>
         </Toolbar>
       </AppBar>
-      <Paper>
-        <Tabs
-          value={value}
-          onChange={handleChange}
-          indicatorColor="primary"
-          textColor="primary"
-          centered
-        >
-          <Tab label="Item One" />
-          <Tab label="Item Two" />
-          <Tab label="Item Three" />
-        </Tabs>
-      </Paper>
       <main>
-        <TopNews />
+        <Container className={classes.mainContainer} maxWidth="md">
+          <Link to={`/mostviewed`}>To most viewed</Link>
+          <Link to={`/mostshared`}>To most shared</Link>
+          <Switch>
+            <Route exact path={`/`} render={() => 'test'}/>
+            <Route path={`/mostviewed`} render={() => <TopNews/>}/>
+            <Route path={`/mostshared`} render={() => <MostSharedArticles/>}/>
+          </Switch>
+        </Container>
       </main>
-    </>
+    </BrowserRouter>
   )
 }

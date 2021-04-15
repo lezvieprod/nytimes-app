@@ -7,8 +7,8 @@ import CardMedia from '@material-ui/core/CardMedia';
 import Grid from '@material-ui/core/Grid';
 import Typography from '@material-ui/core/Typography';
 import {makeStyles} from '@material-ui/core/styles';
-import {useDispatch, useSelector} from 'react-redux';
-import {getTopViewedArticlesThunk} from '../redux/rootReducer';
+import {connect} from 'react-redux';
+import {getTopSharedArticlesThunk, setTopSharedArticles} from '../redux/rootReducer';
 import CircularProgress from '@material-ui/core/CircularProgress'
 import noImage from '.././assets/images/noimage.jpg'
 import {Link} from "react-router-dom";
@@ -46,28 +46,28 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export function TopNews(props) {
+function TopNews(props) {
   const classes = useStyles();
-  const dispatch = useDispatch();
-  const {topViewedArticles, isFetching} = useSelector(state => ({
-    topViewedArticles: state.rootReducer.topViewedArticles,
-    isFetching: state.rootReducer.isFetching
-  }));
 
   useEffect(() => {
-    dispatch(getTopViewedArticlesThunk())
+    props.getTopSharedArticlesThunk()
+    return () => {
+      props.setTopSharedArticles([])
+    }
   }, [])
 
   return (
     <>
-      <Link style={{margin: '2rem 0', display: 'flex'}} to={`/`}>Back to main</Link>
+      <div style={{margin: '2rem 0', display: 'flex'}}>
+        <Link to={`/`}>Back to main</Link>
+      </div>
       <Grid container spacing={4}>
         {
-          isFetching
+          props.isFetching
             ? <div style={{width: '100%', display: 'flex', justifyContent: 'center', margin: '5rem 0'}}><CircularProgress/></div>
             :
-            Array.isArray(topViewedArticles.results) && topViewedArticles.results.length
-            && topViewedArticles.results.map(article => {
+            Array.isArray(props.topSharedArticles.results) && props.topSharedArticles.results.length
+            && props.topSharedArticles.results.map(article => {
               return (
                 <Grid item key={article.id} xs={12} sm={6} md={4} data-title={article.id}>
                   <Card className={classes.card}>
@@ -117,4 +117,8 @@ export function TopNews(props) {
   )
 }
 
-export default React.memo(TopNews);
+const mapStateToProps = (state) => ({
+  topSharedArticles: state.rootReducer.topSharedArticles,
+  isFetching: state.rootReducer.isFetching
+})
+export default connect(mapStateToProps, {getTopSharedArticlesThunk, setTopSharedArticles})(TopNews)

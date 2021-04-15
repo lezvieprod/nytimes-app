@@ -1,46 +1,81 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { getTopViewedArcticles } from "../API/api";
-
+import {getTopSharedArticles, getTopViewedArcticles} from "../API/api";
 
 const initialState = {
-  topNews: [],
-  isFetchingTopNews: false,
+  topViewedArticles: [],
+  isFetching: false,
+  topSharedArticles: [],
   // isRequestStatus: false
 }
 
-// export const getTopNewsThunk = createAsyncThunk(
-//   'getTopNewsThunk',
-//   async () => {
-//     let response = await getTopViewedArcticles();
-//     return console.log(response.data);
-//   }
-// )
+export const getTopViewedArticlesThunk = createAsyncThunk(
+  'articles/getTopViewedArticles',
+  async () => {
+    const response = await getTopViewedArcticles();
+    return response.data;
+  }
+)
+
+export const getTopSharedArticlesThunk = createAsyncThunk(
+  'articles/getTopSharedArticles',
+  async () => {
+    const response = await getTopSharedArticles()
+    return response.data;
+  }
+)
 
 const rootReducer = createSlice({
   name: 'rootReducer',
   initialState,
   reducers: {
-    getTopNews(state, action) {
-      state.topNews = action.payload
+    setTopNews(state, action) {
+      state.topViewedArticles = action.payload
+    },
+    setTopSharedArticles(state, action) {
+      state.topSharedArticles = action.payload
     },
     toggleIsFetchingTopNews(state, action) {
-      state.isFetchingTopNews = action.payload
+      state.isFetching = action.payload
     }
+  },
+  extraReducers: {
+    // Top viewed articles reducers
+    [getTopViewedArticlesThunk.fulfilled]: (state, action) => {
+      if (state.isFetching) {
+        state.topViewedArticles = action.payload
+        state.isFetching = false
+      }
+    },
+    [getTopViewedArticlesThunk.pending]: (state, action) => {
+      if (!state.isFetching) {
+        state.isFetching = true
+      }
+    },
+    [getTopViewedArticlesThunk.rejected]: (state, action) => {
+      if (state.isFetching) {
+        state.isFetching = true
+      }
+    },
+
+    // Top viewed articles reducers
+    [getTopSharedArticlesThunk.fulfilled]: (state, action) => {
+      if (state.isFetching) {
+        state.topSharedArticles = action.payload
+        state.isFetching = false
+      }
+    },
+    [getTopSharedArticlesThunk.pending]: (state, action) => {
+      if (!state.isFetching) {
+        state.isFetching = true
+      }
+    },
+    [getTopSharedArticlesThunk.rejected]: (state, action) => {
+      if (state.isFetching) {
+        state.isFetching = true
+      }
+    },
   }
 })
 
 export default rootReducer.reducer;
-export const { getTopNews, toggleIsFetchingTopNews } = rootReducer.actions
-
-
-export const getTopNewsThunk = () => async dispatch => {
-  dispatch(toggleIsFetchingTopNews(true))
-  try {
-    let response = await getTopViewedArcticles();
-    dispatch(getTopNews(response.data))
-    dispatch(toggleIsFetchingTopNews(false))
-  }
-  catch(err) {
-    console.error('LOG', err);
-  }
-}
+export const { setTopNews,setTopSharedArticles,  toggleIsFetchingTopNews } = rootReducer.actions
